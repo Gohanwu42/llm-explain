@@ -42,7 +42,7 @@ The rebuilt `llm-explain-1.0.0.zip` contains 12 files in one portable skill root
 
 SHA-256: `b8f684a5e20f536a46a947a3572197728815961b349272c42fd89ccdf4d41c21`.
 
-These are local package checks. Remote publication and download verification are separate release steps.
+The public [v1.0.0 release](https://github.com/Gohanwu42/llm-explain/releases/tag/v1.0.0) points to commit `9e2e63cb8e65fa8913d056666c41135327c0b825`. The ZIP was downloaded again from its public release URL: its bytes, SHA-256 checksum, and archive CRC matched the local package. The release also includes the demonstration MP4 and its SRT sidecar.
 
 ### Browser checks
 

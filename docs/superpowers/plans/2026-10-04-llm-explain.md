@@ -73,8 +73,8 @@
 
 - [x] Test archive contents, portable references, excluded private/development files, and reproducibility before implementing the packager.
 - [x] Build and reopen the ZIP; validate the extracted skill and run the complete project suite.
-- [ ] Publish to an existing dedicated repository if found, otherwise create `Gohanwu42/llm-explain` for the user-authorized public skill. Preserve other repositories.
-- [ ] Upload the release ZIP, verify remote file/commit and downloadable bytes, and provide repository plus direct download links.
+- [x] Publish to an existing dedicated repository if found, otherwise create `Gohanwu42/llm-explain` for the user-authorized public skill. Preserve other repositories.
+- [x] Upload the release ZIP, verify remote file/commit and downloadable bytes, and provide repository plus direct download links. Release: https://github.com/Gohanwu42/llm-explain/releases/tag/v1.0.0.
 
 ## Execution record
 
