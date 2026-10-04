@@ -1,0 +1,19 @@
+{
+  "case": "strength-100",
+  "repetition": 1,
+  "guidance": true,
+  "requested_model": "gpt-6.1-sol",
+  "model_identity_source": "Explicit --model argument; response API did not independently return a model identifier",
+  "started_at": "2026-10-04T13:33:51Z",
+  "elapsed_seconds": 58.923,
+  "request": "Use text at 100% ASD-STE100-inspired strength to explain why this tank fills: A tank starts with 20 liters, holds 40 liters, receives 3 liters per minute, and drains 2 liters per minute. Rates are constant and there are no other losses. The model ends when it first becomes full or empty.",
+  "exit_code": 0,
+  "response": "**The tank fills because water enters faster than water leaves.** The tank gains 1 liter each minute. It becomes full after 20 minutes.\n\n**The difference between the two rates determines the net gain.** The net gain is the increase in stored water each minute.\n\n- Water enters: 3 liters per minute.\n- Water leaves: 2 liters per minute.\n- Net gain: 3 \u2212 2 = 1 liter per minute.\n\n**The tank needs 20 more liters to become full.** It starts with 20 liters. It holds 40 liters.\n\n- Remaining capacity: 40 \u2212 20 = 20 liters.\n- Time to fill: 20 liters \u00f7 1 liter per minute = 20 minutes.\n\n**The model stops at 20 minutes.** The rates stay constant. There are no other losses. The stored water increases from 20 to 40 liters. The tank reaches full capacity without becoming empty.\n\n**Try this optional check.** If 4 liters entered each minute and 2 liters left each minute, how long would the same tank take to become full?\n\n**Water accumulates when the inflow rate exceeds the outflow rate.**",
+  "usage": {
+    "input_tokens": 23982,
+    "cached_input_tokens": 19328,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 1182,
+    "reasoning_output_tokens": 934
+  }
+}

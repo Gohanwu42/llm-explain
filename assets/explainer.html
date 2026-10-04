@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>What fills the tank? — LLM Explain</title>
+  <style>
+    /* === THEME: original, offline, and intentionally small === */
+    :root {
+      --paper: #f4f3eb; --panel: #fffefa; --ink: #183b35; --muted: #52655d;
+      --line: #d8ded5; --green: #17664f; --green-soft: #e4eee4;
+      --water: #b5dbe0; --water-dark: #296c79; --rust: #a64b2d;
+      --warning: #fff0db; --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { font-size: 16px; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Avenir Next", "Segoe UI", Arial, sans-serif; line-height: 1.5; }
+    button, input { font: inherit; }
+    button, summary, input[type="range"] { cursor: pointer; }
+    button { min-height: 44px; }
+    input, button, summary { -webkit-tap-highlight-color: transparent; }
+    :focus-visible { outline: 3px solid #7a411a; outline-offset: 4px; }
+    input:focus-visible { outline-offset: 2px; }
+    a { color: var(--green); }
+    svg { display: block; max-width: 100%; }
+    fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+    h1, h2, h3, p, figure { margin: 0; }
+    .page { width: min(1120px, 100%); margin: auto; padding: 34px clamp(18px, 4vw, 44px) 28px; }
+    .eyebrow, .small-label { font-size: .69rem; font-weight: 750; letter-spacing: .13em; text-transform: uppercase; }
+    .eyebrow { display: flex; gap: 14px; align-items: center; }
+    .eyebrow::before { content: ""; width: 22px; height: 3px; background: var(--green); }
+    .eyebrow span { color: var(--muted); font-weight: 500; letter-spacing: .06em; }
+    .hero { display: grid; grid-template-columns: 1.15fr 1fr; align-items: end; gap: 40px; margin: 27px 0 32px; }
+    h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; font-size: clamp(2.6rem, 5.5vw, 4.3rem); line-height: 1.03; letter-spacing: -.045em; }
+    .hero-copy { max-width: 390px; font-size: .98rem; color: var(--muted); padding-bottom: 3px; }
+    .hero-copy strong { color: var(--ink); font-weight: 650; }
+    .workspace { display: grid; grid-template-columns: minmax(250px, .73fr) minmax(0, 1.27fr); gap: 20px; align-items: start; }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+    .controls { padding: 25px; }
+    h2 { font-size: 1.14rem; letter-spacing: -.025em; }
+    .section-intro { color: var(--muted); font-size: .86rem; margin-top: 5px; }
+    .presets { display: flex; gap: 6px; margin: 21px 0 24px; }
+    .preset { flex: 1; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--ink); padding: 7px 6px; font-size: .8rem; }
+    .preset[aria-pressed="true"] { background: var(--ink); color: white; border-color: var(--ink); }
+    .preset:hover { border-color: var(--ink); }
+    .control { padding: 0 0 22px; }
+    .control + .control { border-top: 1px solid #e7e9e0; padding-top: 19px; }
+    .control-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .control label { font-size: .9rem; font-weight: 650; }
+    .unit { display: block; font-size: .73rem; color: var(--muted); font-weight: 400; }
+    input[type="number"] { width: 105px; max-width: 48%; min-height: 44px; padding: 8px 9px; border: 1px solid #bfcbbf; border-radius: 8px; background: white; color: var(--ink); font-variant-numeric: tabular-nums; }
+    input[aria-invalid="true"] { border-color: var(--rust); outline: 1px solid var(--rust); }
+    input[type="range"] { display: block; width: 100%; min-height: 32px; margin: 11px 0 0; accent-color: var(--green); }
+    #outflow-range { accent-color: var(--rust); }
+    .range-ends { display: flex; justify-content: space-between; font-size: .68rem; color: var(--muted); }
+    .input-hint { color: var(--muted); font-size: .73rem; margin: -3px 0 20px; }
+    .setup { border-top: 1px solid var(--line); padding-top: 15px; }
+    summary { min-height: 44px; padding: 8px 0; font-size: .86rem; font-weight: 650; }
+    .setup[open] summary { margin-bottom: 12px; }
+    .setup .control { padding-bottom: 14px; }
+    .setup .control + .control { padding-top: 14px; }
+    .reset { display: block; width: 100%; color: var(--green); background: transparent; border: 1px solid var(--line); border-radius: 8px; font-size: .8rem; margin-top: 10px; }
+    .reset:hover { background: var(--green-soft); }
+    .alert { border-left: 3px solid var(--rust); background: var(--warning); color: #693910; padding: 12px 14px; border-radius: 0 8px 8px 0; font-size: .84rem; margin: 16px 0; }
+    .results { min-width: 0; }
+    .tank-panel { overflow: hidden; }
+    .result-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 22px 24px 0; }
+    .result-heading h2 { font-size: .85rem; font-weight: 550; }
+    .state-tag { border-radius: 99px; color: var(--green); background: var(--green-soft); padding: 5px 10px; font-size: .7rem; font-weight: 700; white-space: nowrap; }
+    .quantity { padding: 1px 24px 0; font-size: clamp(2.5rem, 5vw, 3.25rem); line-height: 1.2; letter-spacing: -.045em; font-variant-numeric: tabular-nums; }
+    .quantity span { font-size: 1.1rem; font-weight: 400; letter-spacing: 0; margin-left: 7px; color: var(--muted); }
+    .at-time { padding: 0 24px; color: var(--muted); font-size: .8rem; }
+    .flow-labels { display: flex; justify-content: space-between; padding: 20px 30px 0; font-size: .77rem; gap: 12px; }
+    .flow-labels span { min-width: 0; overflow-wrap: anywhere; }
+    .flow-labels strong { font-weight: 700; }
+    .flow-in { color: var(--green); }
+    .flow-out { color: var(--rust); text-align: right; }
+    .tank-drawing { width: min(100%, 490px); margin: -1px auto -3px; }
+    .tank-caption { text-align: center; color: var(--muted); font-size: .71rem; padding: 0 18px 20px; }
+    .metrics { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); background: #f0f3e9; }
+    .metric { padding: 15px 24px; min-width: 0; }
+    .metric + .metric { border-left: 1px solid var(--line); }
+    .metric .small-label { color: var(--muted); font-size: .61rem; letter-spacing: .06em; }
+    .metric-value { font-size: 1.3rem; font-weight: 650; margin-top: 2px; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+    .metric-value span { font-size: .7rem; font-weight: 400; margin-left: 4px; color: var(--muted); }
+    .boundary-note { margin: 15px 0 0; }
+    .equation { margin: 22px 0; padding: 0 3px; }
+    .equation .small-label { color: var(--muted); font-size: .64rem; }
+    .equation-value { font-size: clamp(1.03rem, 1.9vw, 1.23rem); line-height: 1.7; font-weight: 650; margin-top: 5px; overflow-wrap: anywhere; }
+    .equation-copy { color: var(--muted); font-size: .83rem; margin-top: 6px; }
+    .chart-panel { padding: 19px 20px 13px; }
+    .chart-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .chart-heading h3 { font-size: .84rem; font-weight: 650; }
+    .chart-heading span { color: var(--muted); font-size: .7rem; }
+    .chart { width: 100%; margin-top: 10px; overflow: visible; }
+    .chart-caption { font-size: .69rem; color: var(--muted); line-height: 1.5; padding-top: 5px; }
+    .invalid-result { min-height: 360px; padding: 40px 30px; display: flex; flex-direction: column; justify-content: center; }
+    .invalid-result h2 { font-family: Georgia, serif; font-size: 1.7rem; font-weight: 400; }
+    .invalid-result p { margin-top: 12px; color: var(--muted); max-width: 34ch; }
+    .bottom-grid { display: grid; grid-template-columns: 1fr 1.27fr; gap: 32px; margin-top: 32px; padding-top: 17px; border-top: 1px solid #cbd4c9; }
+    .notes { font-size: .82rem; color: var(--muted); }
+    .notes summary { color: var(--ink); }
+    .notes ul { margin: 8px 0 0; padding-left: 19px; }
+    .notes li + li { margin-top: 7px; }
+    .quiz-intro { font-size: .84rem; color: var(--muted); margin: 8px 0 14px; }
+    .quiz legend { font-size: .89rem; font-weight: 600; margin-bottom: 12px; }
+    .answers { display: flex; flex-wrap: wrap; gap: 8px; }
+    .answer { display: flex; align-items: center; min-height: 44px; gap: 8px; padding: 9px 12px; border: 1px solid #bdcabb; border-radius: 8px; font-size: .88rem; cursor: pointer; }
+    .answer input { accent-color: var(--green); width: 17px; height: 17px; }
+    .check { background: var(--ink); color: white; padding: 10px 15px; border: 1px solid var(--ink); border-radius: 8px; font-size: .83rem; margin-top: 14px; }
+    .quiz-feedback { font-size: .84rem; margin-top: 13px; }
+    .footer { display: flex; justify-content: space-between; gap: 16px; border-top: 1px solid var(--line); margin-top: 30px; padding-top: 15px; font-size: .68rem; color: var(--muted); }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    @media (max-width: 760px) {
+      .hero { grid-template-columns: 1fr; gap: 18px; margin: 25px 0; }
+      .hero-copy { max-width: 44ch; }
+      .workspace { grid-template-columns: 1fr; gap: 20px; }
+      .controls { padding: 21px; }
+      .control { padding-bottom: 16px; }
+      .control + .control { padding-top: 15px; }
+      .presets { margin: 18px 0 21px; }
+      .bottom-grid { grid-template-columns: 1fr; gap: 14px; }
+      .tank-drawing { max-width: 450px; }
+      .page { padding-top: 25px; }
+    }
+    @media (max-width: 380px) {
+      .eyebrow { gap: 9px; font-size: .63rem; }
+      .result-heading, .quantity, .at-time { padding-left: 18px; padding-right: 18px; }
+      .result-heading { align-items: flex-start; }
+      .flow-labels { padding-left: 18px; padding-right: 18px; }
+      .metric { padding: 13px 15px; }
+      .metric-value { font-size: 1.15rem; }
+      .chart-panel { padding-left: 14px; padding-right: 14px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }
+    @media print {
+      body { background: white; }
+      .page { width: 100%; padding: 0; }
+      .controls, .quiz, .footer { display: none; }
+      .workspace, .bottom-grid { display: block; }
+      .panel { break-inside: avoid; }
+      .hero { margin-bottom: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <p class="eyebrow">LLM Explain <span>How things change · 01</span></p>
+      <div class="hero">
+        <h1>What fills<br>the tank?</h1>
+        <p class="hero-copy">Water enters. Water leaves. <strong>The difference between the two flows changes the amount inside.</strong> Adjust the flows and watch that difference add up over time.</p>
+      </div>
+    </header>
+
+    <noscript><p class="alert">JavaScript is needed for the controls. The worked example remains readable: starting with 20 L, a net inflow of 1 L/min produces 30 L after 10 min.</p></noscript>
+
+    <main>
+      <div class="workspace">
+        <!-- === INPUTS: native controls preserve keyboard and touch access === -->
+        <section class="panel controls" aria-labelledby="controls-heading">
+          <h2 id="controls-heading">Change one thing.</h2>
+          <p class="section-intro">See which relationship changes.</p>
+          <form id="controls-form" novalidate>
+            <fieldset id="interactive-controls" disabled>
+              <legend class="sr-only">Tank model controls</legend>
+              <div class="presets" role="group" aria-label="Example scenarios">
+                <button type="button" class="preset" data-preset="filling" aria-pressed="true">Filling</button>
+                <button type="button" class="preset" data-preset="balanced" aria-pressed="false">Balanced</button>
+                <button type="button" class="preset" data-preset="draining" aria-pressed="false">Draining</button>
+              </div>
+
+              <div class="control">
+                <div class="control-row">
+                  <label for="inflow">Inflow<span class="unit">liters per minute</span></label>
+                  <input id="inflow" type="number" inputmode="decimal" value="3" min="0" step="any" aria-describedby="input-hint input-error">
+                </div>
+                <input id="inflow-range" type="range" min="0" max="10" step="any" value="3" aria-label="Inflow slider, liters per minute">
+                <div class="range-ends" aria-hidden="true"><span>0</span><span id="inflow-max">10 L/min</span></div>
+              </div>
+              <div class="control">
+                <div class="control-row">
+                  <label for="outflow">Outflow<span class="unit">liters per minute</span></label>
+                  <input id="outflow" type="number" inputmode="decimal" value="2" min="0" step="any" aria-describedby="input-hint input-error">
+                </div>
+                <input id="outflow-range" type="range" min="0" max="10" step="any" value="2" aria-label="Outflow slider, liters per minute">
+                <div class="range-ends" aria-hidden="true"><span>0</span><span id="outflow-max">10 L/min</span></div>
+              </div>
+              <div class="control">
+                <div class="control-row">
+                  <label for="minutes">Elapsed time<span class="unit">minutes</span></label>
+                  <input id="minutes" type="number" inputmode="decimal" value="10" min="0" step="any" aria-describedby="input-hint input-error">
+                </div>
+                <input id="minutes-range" type="range" min="0" max="40" step="any" value="10" aria-label="Elapsed time slider, minutes">
+                <div class="range-ends" aria-hidden="true"><span>0</span><span id="minutes-max">40 min</span></div>
+              </div>
+              <p id="input-hint" class="input-hint">Type a non-negative value, or use a slider. Arrow keys adjust a focused slider.</p>
+
+              <details class="setup" id="tank-setup">
+                <summary>Tank setup</summary>
+                <div class="control">
+                  <div class="control-row">
+                    <label for="initial">Starting water<span class="unit">liters</span></label>
+                    <input id="initial" type="number" inputmode="decimal" value="20" min="0" step="any" aria-describedby="input-error">
+                  </div>
+                </div>
+                <div class="control">
+                  <div class="control-row">
+                    <label for="capacity">Capacity<span class="unit">liters</span></label>
+                    <input id="capacity" type="number" inputmode="decimal" value="40" min="0" step="any" aria-describedby="input-error">
+                  </div>
+                </div>
+              </details>
+              <p id="input-error" class="alert" role="alert" hidden></p>
+              <button class="reset" type="button" id="reset">Reset example</button>
+            </fieldset>
+          </form>
+        </section>
+
+        <!-- === RESULTS: every view comes from the same pure model === -->
+        <section class="results" aria-labelledby="result-heading">
+          <div id="invalid-result" class="panel invalid-result" hidden>
+            <h2>Let’s use a valid starting point.</h2>
+            <p>Correct the highlighted input to see the result. No calculation is shown while an input is invalid.</p>
+          </div>
+          <div id="results">
+            <figure class="panel tank-panel">
+              <div class="result-heading">
+                <h2 id="result-heading">Water in the tank</h2>
+                <span id="state-tag" class="state-tag">Filling</span>
+              </div>
+              <p class="quantity"><output id="volume-output" for="inflow outflow minutes initial capacity">30</output><span>L</span></p>
+              <p class="at-time" id="at-time">after 10 min</p>
+              <div class="flow-labels">
+                <span class="flow-in">IN <strong id="inflow-label">3 L/min</strong></span>
+                <span class="flow-out">OUT <strong id="outflow-label">2 L/min</strong></span>
+              </div>
+              <svg class="tank-drawing" viewBox="0 0 520 300" role="img" aria-labelledby="tank-title tank-description">
+                <title id="tank-title">Water level in a tank</title>
+                <desc id="tank-description">The tank holds 30 liters after 10 minutes. The dashed line marks the starting 20 liters. Capacity is 40 liters.</desc>
+                <defs>
+                  <clipPath id="tank-clip"><rect x="145" y="28" width="230" height="238" rx="10"/></clipPath>
+                  <marker id="in-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M1 1 7 4.5 1 8" fill="none" stroke="#17664f" stroke-width="1.5"/></marker>
+                  <marker id="out-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M1 1 7 4.5 1 8" fill="none" stroke="#a64b2d" stroke-width="1.5"/></marker>
+                </defs>
+                <rect x="145" y="28" width="230" height="238" rx="10" fill="#eef3ef"/>
+                <g clip-path="url(#tank-clip)">
+                  <rect id="water-fill" x="145" y="87.5" width="230" height="178.5" fill="#b5dbe0"/>
+                  <line id="water-surface" x1="145" x2="375" y1="87.5" y2="87.5" stroke="#296c79" stroke-width="3"/>
+                  <line id="initial-line" x1="145" x2="375" y1="147" y2="147" stroke="#52655d" stroke-width="2" stroke-dasharray="6 6"/>
+                </g>
+                <path d="M140 24 V249 Q140 270 161 270 H359 Q380 270 380 249 V24" fill="none" stroke="#183b35" stroke-width="5" stroke-linecap="round"/>
+                <path d="M65 42 H191 V66" fill="none" stroke="#17664f" stroke-width="4" stroke-linejoin="round" marker-end="url(#in-arrow)"/>
+                <path d="M380 225 H465" fill="none" stroke="#a64b2d" stroke-width="4" marker-end="url(#out-arrow)"/>
+                <path d="M397 28 h12 M397 87.5 h8 M397 147 h12 M397 206.5 h8 M397 266 h12" stroke="#9aaea3" stroke-width="2"/>
+                <path d="M128 281 H392" stroke="#d8ded5" stroke-width="2"/>
+              </svg>
+              <figcaption class="tank-caption">Dashed line: starting water. Capacity: <span id="capacity-label">40 L</span>.</figcaption>
+              <div class="metrics">
+                <div class="metric"><p class="small-label">Net change</p><p class="metric-value"><output id="net-output">+1</output><span>L/min</span></p></div>
+                <div class="metric"><p id="boundary-heading" class="small-label">Full at</p><p class="metric-value"><output id="boundary-output">20</output><span id="boundary-unit">min</span></p></div>
+              </div>
+            </figure>
+            <p id="boundary-note" class="alert boundary-note" hidden></p>
+
+            <div class="equation">
+              <p class="small-label" id="equation-heading">Starting water + net change × time</p>
+              <p id="equation-value" class="equation-value">20 L + (3 − 2) L/min × 10 min = 30 L</p>
+              <p id="equation-copy" class="equation-copy">Every minute adds 1 L. After 10 min, the tank has gained 10 L.</p>
+            </div>
+
+            <figure class="panel chart-panel">
+              <div class="chart-heading"><h3>Water over time</h3><span id="chart-dot-label">Dot = selected time</span></div>
+              <svg class="chart" viewBox="0 0 500 200" role="img" aria-labelledby="chart-title chart-description">
+                <title id="chart-title">Water volume over time</title>
+                <desc id="chart-description">The volume rises from 20 liters to 40 liters in 20 minutes. At the selected 10 minutes it is 30 liters.</desc>
+                <rect id="outside-area" x="465" y="20" width="0" height="137" fill="#f4e7d3"/>
+                <path d="M43 20 H465 M43 88.5 H465 M43 157 H465" fill="none" stroke="#e1e5dc" stroke-width="1"/>
+                <path id="chart-area" d="M43 157 L43 88.5 L465 20 L465 157 Z" fill="#b5dbe0" fill-opacity=".45"/>
+                <path id="chart-line" d="M43 88.5 L465 20" fill="none" stroke="#296c79" stroke-width="3" stroke-linecap="round"/>
+                <line id="selected-guide" x1="254" x2="254" y1="54.25" y2="157" stroke="#52655d" stroke-dasharray="4 5" stroke-width="1.5"/>
+                <circle id="selected-dot" cx="254" cy="54.25" r="6" fill="#183b35" stroke="#fffefa" stroke-width="2"/>
+                <g font-family="Arial, sans-serif" font-size="18" fill="#52655d">
+                  <text id="chart-capacity" x="43" y="16" font-size="15">40 L capacity</text>
+                  <text x="34" y="163" text-anchor="end">0</text>
+                  <text x="43" y="187">0 min</text>
+                  <text id="chart-end" x="465" y="187" text-anchor="end">20 min</text>
+                </g>
+              </svg>
+              <figcaption id="chart-caption" class="chart-caption">Volume in liters. The line stops when the tank is full or empty.</figcaption>
+            </figure>
+          </div>
+          <p id="live-result" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+        </section>
+      </div>
+
+      <div class="bottom-grid">
+        <details class="notes" open>
+          <summary>Where this model works</summary>
+          <ul>
+            <li>Each flow stays constant. Capacity stays fixed during a run. Other gains and losses are ignored.</li>
+            <li>The calculation ends when the tank first reaches full or empty. What happens next needs another model.</li>
+            <li>Liters measure the amount. Liters per minute measure a rate. Multiplying a rate by minutes gives an amount.</li>
+            <li>The equation keeps the input precision. The ≈ sign marks an approximate result.</li>
+          </ul>
+        </details>
+
+        <details class="quiz">
+          <summary>Try one more example <span class="unit">Optional · check the relationship</span></summary>
+          <p class="quiz-intro">Another 40 L tank starts with 20 L. Both flows double: 6 L/min in and 4 L/min out.</p>
+          <form id="quiz-form">
+            <fieldset id="quiz-controls" disabled>
+              <legend>How much water is in it after 5 minutes?</legend>
+              <div class="answers">
+                <label class="answer"><input type="radio" name="answer" value="25">25 L</label>
+                <label class="answer"><input type="radio" name="answer" value="30">30 L</label>
+                <label class="answer"><input type="radio" name="answer" value="40">40 L</label>
+              </div>
+              <button type="submit" class="check">Check answer</button>
+            </fieldset>
+            <p id="quiz-feedback" class="quiz-feedback" role="status" aria-live="polite"></p>
+          </form>
+        </details>
+      </div>
+    </main>
+    <footer class="footer"><span>LLM Explain</span><span>One relationship. A concrete example.</span></footer>
+  </div>
+  <script id="water-model">
+  'use strict';
+
+  /* Pure model. Units: liters, liters per minute, and minutes.
+     The domain ends when the tank first reaches full or empty.
+     A later request returns that last valid state and an explicit flag;
+     it does not model overflow or a pump running against an empty tank. */
+  function calculateTank({ capacityL, initialL, inflowLpm, outflowLpm, minutes }) {
+    const values = { capacityL, initialL, inflowLpm, outflowLpm, minutes };
+    const names = {
+      capacityL: 'Capacity', initialL: 'Starting water',
+      inflowLpm: 'Inflow', outflowLpm: 'Outflow', minutes: 'Elapsed time',
+    };
+    for (const [key, value] of Object.entries(values)) {
+      if (typeof value !== 'number' || !Number.isFinite(value)) {
+        throw new TypeError(names[key] + ' must be a finite number.');
+      }
+      if (value < 0) throw new RangeError(names[key] + ' cannot be negative.');
+    }
+    if (capacityL === 0) throw new RangeError('Capacity must be greater than zero.');
+    if (initialL > capacityL) throw new RangeError('Starting water cannot exceed capacity.');
+
+    const netLpm = inflowLpm - outflowLpm;
+    const boundary = netLpm > 0 ? 'full' : netLpm < 0 ? 'empty' : null;
+    const distanceL = netLpm > 0 ? capacityL - initialL : initialL;
+    const boundaryMinutes = netLpm === 0 ? null : distanceL / Math.abs(netLpm);
+    if (boundaryMinutes !== null &&
+        (!Number.isFinite(boundaryMinutes) || (distanceL > 0 && boundaryMinutes === 0))) {
+      throw new RangeError('These values exceed the numeric range of this model. Use less extreme values.');
+    }
+
+    // Relative tolerance recognizes exact decimal boundaries despite binary
+    // floating-point rounding, without treating a tiny interval as zero.
+    const tolerance = boundaryMinutes === null ? 0 :
+      8 * Number.EPSILON * Math.max(minutes, boundaryMinutes);
+    const atBoundary = boundaryMinutes !== null && minutes >= boundaryMinutes - tolerance;
+    const beyondBoundary = boundaryMinutes !== null && minutes > boundaryMinutes + tolerance;
+    const elapsedMinutes = atBoundary ? boundaryMinutes : minutes;
+    const volumeL = atBoundary ? (boundary === 'full' ? capacityL : 0) :
+      Math.max(0, Math.min(capacityL, initialL + netLpm * elapsedMinutes));
+
+    return {
+      volumeL, netLpm, elapsedMinutes, requestedMinutes: minutes,
+      boundaryMinutes, boundary, atBoundary, beyondBoundary,
+    };
+  }
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { calculateTank };
+  }
+  </script>
+
+  <script id="water-interface">
+  'use strict';
+  (() => {
+    /* === ADAPTATION: replace the lesson, controls, and model together.
+       Keep calculations in water-model; keep DOM work in this script.
+       No network, storage, framework, or build step is required. === */
+    const byId = (id) => document.getElementById(id);
+    const fields = {
+      capacityL: byId('capacity'), initialL: byId('initial'),
+      inflowLpm: byId('inflow'), outflowLpm: byId('outflow'), minutes: byId('minutes'),
+    };
+    const defaults = { capacityL: 40, initialL: 20, inflowLpm: 3, outflowLpm: 2, minutes: 10 };
+    const scenarios = {
+      filling: defaults,
+      balanced: { ...defaults, inflowLpm: 2, outflowLpm: 2 },
+      draining: { ...defaults, inflowLpm: 1, outflowLpm: 3 },
+    };
+    const sliderSpecs = [['inflow', 10, 'L/min'], ['outflow', 10, 'L/min'], ['minutes', 40, 'min']];
+    const numbers = new Intl.NumberFormat('en', { maximumFractionDigits: 3 });
+    const format = (value) => {
+      const magnitude = Math.abs(value);
+      return magnitude !== 0 && (magnitude < .001 || magnitude >= 1000000) ?
+        value.toExponential(2).replace('e+', 'e') : numbers.format(value);
+    };
+    // Operands must retain their numeric value. Rounding two nearly equal
+    // flows before displaying a subtraction can turn a real change into zero.
+    const exact = (value) => String(value).replace('e+', 'e');
+    const isRounded = (value) => Number(format(value).replaceAll(',', '')) !== value;
+    const approximate = (value, signed = false) =>
+      (isRounded(value) ? '≈' : '') + (signed && value > 0 ? '+' : '') + format(value);
+    const text = (id, value) => { byId(id).textContent = value; };
+    const attrs = (id, values) => {
+      for (const [key, value] of Object.entries(values)) byId(id).setAttribute(key, value);
+    };
+
+    function updateSliders() {
+      for (const [id, baseMax, unit] of sliderSpecs) {
+        const value = byId(id).valueAsNumber;
+        if (!Number.isFinite(value) || value < 0) continue;
+        const slider = byId(id + '-range');
+        // Retain an expanded range while exploring; lowering the value must
+        // not move the endpoint underneath the pointer or keyboard focus.
+        slider.max = String(Math.max(Number(slider.max), baseMax, value));
+        slider.value = String(value);
+        slider.setAttribute('aria-valuetext', exact(value) + ' ' + unit);
+        text(id + '-max', exact(Number(slider.max)) + ' ' + unit);
+      }
+    }
+
+    function drawChart(values, result) {
+      const endMinutes = Math.max(20, values.minutes);
+      const end = calculateTank({ ...values, minutes: endMinutes });
+      const x = (time) => 43 + (time / endMinutes) * 422;
+      const y = (volume) => 157 - (volume / values.capacityL) * 137;
+      const endX = x(end.elapsedMinutes);
+      const startY = y(values.initialL);
+      const endY = y(end.volumeL);
+      const selectedX = x(result.elapsedMinutes);
+      const selectedY = y(result.volumeL);
+      attrs('chart-line', { d: `M43 ${startY} L${endX} ${endY}` });
+      attrs('chart-area', { d: `M43 157 L43 ${startY} L${endX} ${endY} L${endX} 157 Z` });
+      attrs('outside-area', { x: endX, width: Math.max(0, 465 - endX) });
+      attrs('selected-guide', { x1: selectedX, x2: selectedX, y1: selectedY, y2: 157 });
+      attrs('selected-dot', { cx: selectedX, cy: selectedY });
+      text('chart-capacity', exact(values.capacityL) + ' L capacity');
+      text('chart-end', exact(endMinutes) + ' min');
+      text('chart-dot-label', result.beyondBoundary ? 'Dot = last valid time' : 'Dot = selected time');
+      text('chart-caption', end.beyondBoundary ?
+        'Volume in liters. The shaded interval is outside this model; the line stops at the first boundary.' :
+        'Volume in liters. The line stops when the tank is full or empty.');
+      text('chart-description', `The model starts at ${exact(values.initialL)} liters. It reaches ${approximate(end.volumeL)} liters at ${approximate(end.elapsedMinutes)} minutes. The selected valid point is ${approximate(result.volumeL)} liters at ${approximate(result.elapsedMinutes)} minutes.`);
+    }
+
+    function refresh() {
+      const values = Object.fromEntries(Object.entries(fields).map(([key, input]) => [key, input.valueAsNumber]));
+      for (const input of Object.values(fields)) input.removeAttribute('aria-invalid');
+      let result;
+      try {
+        result = calculateTank(values);
+      } catch (error) {
+        for (const [key, input] of Object.entries(fields)) {
+          if (!Number.isFinite(values[key]) || values[key] < 0 ||
+              (key === 'capacityL' && values[key] === 0) ||
+              (key === 'initialL' && values.initialL > values.capacityL)) input.setAttribute('aria-invalid', 'true');
+        }
+        if (!Object.values(fields).some((input) => input.hasAttribute('aria-invalid'))) {
+          for (const input of Object.values(fields)) input.setAttribute('aria-invalid', 'true');
+        }
+        text('input-error', error.message);
+        byId('input-error').hidden = false;
+        byId('results').hidden = true;
+        byId('invalid-result').hidden = false;
+        text('live-result', 'No result. ' + error.message);
+        for (const button of document.querySelectorAll('[data-preset]')) button.setAttribute('aria-pressed', 'false');
+        return;
+      }
+
+      byId('input-error').hidden = true;
+      byId('results').hidden = false;
+      byId('invalid-result').hidden = true;
+      updateSliders();
+      for (const button of document.querySelectorAll('[data-preset]')) {
+        const selected = Object.entries(scenarios[button.dataset.preset]).every(([key, value]) => values[key] === value);
+        button.setAttribute('aria-pressed', String(selected));
+      }
+      text('volume-output', approximate(result.volumeL));
+      text('at-time', `${result.beyondBoundary ? 'last valid state at' : 'after'} ${approximate(result.elapsedMinutes)} min`);
+      text('state-tag', result.beyondBoundary ? 'Outside this model' :
+        result.atBoundary ? (result.boundary === 'full' ? 'Just full' : 'Just empty') :
+        result.netLpm > 0 ? 'Filling' : result.netLpm < 0 ? 'Draining' : 'Balanced');
+      text('inflow-label', exact(values.inflowLpm) + ' L/min');
+      text('outflow-label', exact(values.outflowLpm) + ' L/min');
+      text('capacity-label', exact(values.capacityL) + ' L');
+      text('net-output', approximate(result.netLpm, true));
+      text('boundary-heading', result.boundary === 'full' ? 'Full at' : result.boundary === 'empty' ? 'Empty at' : 'At equal flows');
+      text('boundary-output', result.boundaryMinutes === null ? 'No change' : approximate(result.boundaryMinutes));
+      text('boundary-unit', result.boundaryMinutes === null ? '' : 'min');
+
+      const waterHeight = (result.volumeL / values.capacityL) * 238;
+      const waterY = 266 - waterHeight;
+      const initialY = 266 - (values.initialL / values.capacityL) * 238;
+      attrs('water-fill', { y: waterY, height: waterHeight });
+      attrs('water-surface', { y1: waterY, y2: waterY });
+      attrs('initial-line', { y1: initialY, y2: initialY });
+      text('tank-description', `The tank holds ${approximate(result.volumeL)} liters at ${approximate(result.elapsedMinutes)} minutes. The dashed line marks the starting ${exact(values.initialL)} liters. Capacity is ${exact(values.capacityL)} liters.`);
+
+      byId('boundary-note').hidden = !result.beyondBoundary;
+      text('boundary-note', result.beyondBoundary ?
+        `The tank becomes ${result.boundary} at ${approximate(result.boundaryMinutes)} min. Your selected ${exact(values.minutes)} min is beyond that point. The result and dot show the last valid state, not what happens afterward.` : '');
+      text('equation-heading', result.beyondBoundary ? 'Calculation at the model boundary' : 'Starting water + net change × time');
+      const expressionValue = values.initialL + (values.inflowLpm - values.outflowLpm) * result.elapsedMinutes;
+      const relation = isRounded(result.volumeL) || expressionValue !== result.volumeL ? '≈' : '=';
+      text('equation-value', `${exact(values.initialL)} L + (${exact(values.inflowLpm)} − ${exact(values.outflowLpm)}) L/min × ${exact(result.elapsedMinutes)} min ${relation} ${format(result.volumeL)} L`);
+      const change = Math.abs(result.volumeL - values.initialL);
+      text('equation-copy', result.netLpm === 0 ?
+        'The flows cancel each other. Water keeps moving, but the amount in the tank stays the same.' :
+        `Every minute ${result.netLpm > 0 ? 'adds' : 'removes'} ${approximate(Math.abs(result.netLpm))} L. After ${approximate(result.elapsedMinutes)} min, the tank has ${result.netLpm > 0 ? 'gained' : 'lost'} ${approximate(change)} L.`);
+      drawChart(values, result);
+      text('live-result', `${approximate(result.volumeL)} liters at ${approximate(result.elapsedMinutes)} minutes. Net change ${approximate(result.netLpm)} liters per minute.${result.beyondBoundary ? ' Selected time is outside this model; showing the last valid state.' : ''}`);
+    }
+
+    function setScenario(values) {
+      for (const [id, baseMax] of sliderSpecs) byId(id + '-range').max = String(baseMax);
+      for (const [key, value] of Object.entries(values)) fields[key].value = String(value);
+      refresh();
+    }
+
+    for (const input of Object.values(fields)) input.addEventListener('input', refresh);
+    for (const id of ['inflow', 'outflow', 'minutes']) {
+      byId(id + '-range').addEventListener('input', (event) => {
+        byId(id).value = event.target.value;
+        refresh();
+      });
+    }
+    for (const button of document.querySelectorAll('[data-preset]')) {
+      button.addEventListener('click', () => setScenario(scenarios[button.dataset.preset]));
+    }
+    byId('controls-form').addEventListener('submit', (event) => event.preventDefault());
+    byId('reset').addEventListener('click', () => {
+      setScenario(defaults);
+      byId('quiz-form').reset();
+      text('quiz-feedback', '');
+    });
+    byId('quiz-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const answer = new FormData(event.currentTarget).get('answer');
+      text('quiz-feedback', !answer ? 'Choose an amount first, or leave this question for later.' :
+        answer === '30' ? 'Yes. The net inflow is 6 − 4 = 2 L/min. Five minutes adds 10 L, so the tank holds 30 L.' :
+        'Use the difference between the flows: 6 − 4 = 2 L/min. Over 5 min that adds 10 L to the starting 20 L, giving 30 L.');
+    });
+    byId('interactive-controls').disabled = false;
+    byId('quiz-controls').disabled = false;
+    refresh();
+  })();
+  </script>
+</body>
+</html>

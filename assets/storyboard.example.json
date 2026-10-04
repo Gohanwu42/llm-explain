@@ -1,0 +1,22 @@
+{
+  "width": 1280,
+  "height": 720,
+  "fps": 24,
+  "segments": [
+    {
+      "image": "scene-01.png",
+      "audio": "narration-01.wav",
+      "caption": "The tank begins with 20 liters. Its capacity is 40 liters."
+    },
+    {
+      "image": "scene-02.png",
+      "audio": "narration-02.wav",
+      "caption": "Three liters flow in each minute. Two liters flow out. The net increase is one liter per minute."
+    },
+    {
+      "image": "scene-03.png",
+      "audio": "narration-03.wav",
+      "caption": "The tank reaches 40 liters after 20 minutes. This model assumes constant flows and stops when the tank is full."
+    }
+  ]
+}

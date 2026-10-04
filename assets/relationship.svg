@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="860" viewBox="0 0 1200 860" role="img" aria-labelledby="title description" lang="en">
+  <title id="title">How the difference between two flows accumulates in a water tank</title>
+  <desc id="description">A tank starts with 20 liters and has capacity 40 liters. Constant inflow is 3 liters per minute and constant outflow is 2 liters per minute. The net inflow of 1 liter per minute adds 10 liters over 10 minutes, leaving 30 liters. The tank becomes full at 20 minutes; the model ends when it first becomes full or empty.</desc>
+  <!-- Original, editable SVG. Text, shapes, and connectors remain separate.
+       Keep the quantities, units, equation, and assumptions consistent when adapting. -->
+  <defs>
+    <marker id="in-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M1 1 8 5 1 9" fill="none" stroke="#17664f" stroke-width="1.7"/>
+    </marker>
+    <marker id="out-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M1 1 8 5 1 9" fill="none" stroke="#a64b2d" stroke-width="1.7"/>
+    </marker>
+    <clipPath id="tank-clip"><rect x="482" y="238" width="236" height="240" rx="10"/></clipPath>
+  </defs>
+  <rect width="1200" height="860" fill="#f4f3eb"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#183b35">
+    <path d="M64 57 H90" stroke="#17664f" stroke-width="4"/>
+    <text x="106" y="64" font-size="16" font-weight="700" letter-spacing="2">LLM EXPLAIN · HOW THINGS CHANGE</text>
+    <text x="64" y="138" font-family="Georgia, 'Times New Roman', serif" font-size="58" letter-spacing="-2">The difference adds up.</text>
+    <text x="66" y="183" font-size="22" fill="#52655d">Start with 20 L in a 40 L tank. Keep both flows constant.</text>
+
+    <!-- === TWO FLOWS: arrows carry water into and out of the tank === -->
+    <g id="inflow">
+      <rect x="64" y="267" width="272" height="157" rx="16" fill="#e4eee4" stroke="#c9d8c9"/>
+      <text x="92" y="307" font-size="16" font-weight="700" letter-spacing="2" fill="#17664f">INFLOW</text>
+      <text x="92" y="365" font-size="49" font-weight="700" fill="#17664f">3<tspan font-size="24" font-weight="400"> L/min</tspan></text>
+      <text x="92" y="398" font-size="18" fill="#52655d">Water entering the tank</text>
+      <path d="M348 303 H458" fill="none" stroke="#17664f" stroke-width="4" marker-end="url(#in-arrow)"/>
+    </g>
+
+    <!-- === STOCK: the water level represents amount, not a rate === -->
+    <g id="water-tank">
+      <text x="600" y="221" font-size="18" text-anchor="middle" fill="#52655d">40 L capacity</text>
+      <rect x="482" y="238" width="236" height="240" rx="10" fill="#eef3ef"/>
+      <g clip-path="url(#tank-clip)">
+        <rect x="482" y="298" width="236" height="180" fill="#b5dbe0"/>
+        <path d="M482 298 H718" stroke="#296c79" stroke-width="3"/>
+        <path d="M482 358 H718" stroke="#52655d" stroke-width="2" stroke-dasharray="7 7"/>
+      </g>
+      <path d="M477 234 V460 Q477 483 500 483 H700 Q723 483 723 460 V234" fill="none" stroke="#183b35" stroke-width="5" stroke-linecap="round"/>
+      <text x="600" y="412" font-size="49" font-weight="700" text-anchor="middle">30<tspan font-size="25" font-weight="400"> L</tspan></text>
+      <text x="600" y="446" font-size="19" text-anchor="middle">after 10 min</text>
+      <path d="M452 495 H748" stroke="#c9d2c7" stroke-width="2"/>
+      <text x="600" y="523" font-size="17" text-anchor="middle" fill="#52655d">Dashed line: starting 20 L</text>
+    </g>
+
+    <g id="outflow">
+      <path d="M735 392 H846" fill="none" stroke="#a64b2d" stroke-width="4" marker-end="url(#out-arrow)"/>
+      <rect x="864" y="267" width="272" height="157" rx="16" fill="#f4e9dc" stroke="#e2d3c1"/>
+      <text x="892" y="307" font-size="16" font-weight="700" letter-spacing="2" fill="#a64b2d">OUTFLOW</text>
+      <text x="892" y="365" font-size="49" font-weight="700" fill="#a64b2d">2<tspan font-size="24" font-weight="400"> L/min</tspan></text>
+      <text x="892" y="398" font-size="18" fill="#52655d">Water leaving the tank</text>
+    </g>
+
+    <!-- === RELATIONSHIP: rate multiplied by time becomes an amount === -->
+    <g id="relationship">
+      <rect x="64" y="564" width="1072" height="148" rx="17" fill="#fffefa" stroke="#d8ded5"/>
+      <text x="92" y="603" font-size="15" font-weight="700" letter-spacing="1.8" fill="#52655d">STARTING WATER + NET RATE × TIME</text>
+      <text x="92" y="658" font-size="35" font-weight="600">20 L + (<tspan fill="#17664f">3</tspan> − <tspan fill="#a64b2d">2</tspan>) L/min × 10 min = 30 L</text>
+      <text x="92" y="690" font-size="18" fill="#52655d">Each minute adds 1 L. Ten minutes adds 10 L to the starting amount.</text>
+    </g>
+
+    <path d="M64 751 H1136" stroke="#cbd4c9" stroke-width="1.5"/>
+    <text x="64" y="785" font-size="18" font-weight="700">Model boundary</text>
+    <text x="247" y="785" font-size="18" fill="#52655d">Full at 20 min. Stop when the tank first reaches full or empty.</text>
+    <text x="64" y="821" font-size="17" fill="#52655d">Assumptions: constant flows, fixed capacity, and no other gains or losses.</text>
+  </g>
+</svg>

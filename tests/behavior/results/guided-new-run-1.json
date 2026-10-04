@@ -1,0 +1,19 @@
+{
+  "case": "new-run",
+  "repetition": 1,
+  "guidance": true,
+  "requested_model": "gpt-6.1-sol",
+  "model_identity_source": "Explicit --model argument; response API did not independently return a model identifier",
+  "started_at": "2026-10-04T13:34:51Z",
+  "elapsed_seconds": 22.655,
+  "request": "Context: a previous task used text at 80%. This is a NEW learning task. Learner: Explain opportunity cost in text.",
+  "exit_code": 0,
+  "response": "What ASD-STE100-inspired writing strength would you like, from **0%** (natural prose) to **100%** (tightly controlled, simplified language)?",
+  "usage": {
+    "input_tokens": 23188,
+    "cached_input_tokens": 19328,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 274,
+    "reasoning_output_tokens": 234
+  }
+}

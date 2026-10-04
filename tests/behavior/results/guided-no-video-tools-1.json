@@ -1,0 +1,19 @@
+{
+  "case": "no-video-tools",
+  "repetition": 1,
+  "guidance": true,
+  "requested_model": "gpt-6.1-sol",
+  "model_identity_source": "Explicit --model argument; response API did not independently return a model identifier",
+  "started_at": "2026-10-04T13:35:14Z",
+  "elapsed_seconds": 26.442,
+  "request": "I choose video, lightweight. Explain why this tank fills: A tank starts with 20 liters, holds 40 liters, receives 3 liters per minute, and drains 2 liters per minute. Rates are constant and there are no other losses. The model ends when it first becomes full or empty. Environment: text responses only; no video, audio, rendering, filesystem, or playback tools are available.",
+  "exit_code": 0,
+  "response": "I can\u2019t produce a playable video in this text-only environment. Would you prefer a lightweight video script and storyboard, or a text explanation?",
+  "usage": {
+    "input_tokens": 24203,
+    "cached_input_tokens": 13184,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 368,
+    "reasoning_output_tokens": 334
+  }
+}

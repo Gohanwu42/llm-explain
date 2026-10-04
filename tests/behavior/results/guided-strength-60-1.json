@@ -1,0 +1,19 @@
+{
+  "case": "strength-60",
+  "repetition": 1,
+  "guidance": true,
+  "requested_model": "gpt-6.1-sol",
+  "model_identity_source": "Explicit --model argument; response API did not independently return a model identifier",
+  "started_at": "2026-10-04T13:33:30Z",
+  "elapsed_seconds": 50.413,
+  "request": "Use text at 60% ASD-STE100-inspired strength to explain why this tank fills: A tank starts with 20 liters, holds 40 liters, receives 3 liters per minute, and drains 2 liters per minute. Rates are constant and there are no other losses. The model ends when it first becomes full or empty.",
+  "exit_code": 0,
+  "response": "**The tank fills because water enters faster than it drains, and it becomes full after 20 minutes.** Each minute, 3 liters enter and 2 liters leave. The tank therefore gains 3 \u2212 2 = **1 liter per minute**.\n\n**The tank needs 20 more liters to become full.** It starts with 20 liters and holds 40 liters:\n\n- Space remaining: 40 \u2212 20 = 20 liters.\n- Time to fill: 20 liters \u00f7 1 liter per minute = **20 minutes**.\n\nThe rates stay constant, and there are no other losses. The water level keeps rising, so the tank reaches full before it can become empty. The model stops at that point.\n\n**Optional check:** If only the drain rate changed to 4 liters per minute, would the tank fill or empty, and how long would it take?\n\n**Inflow minus outflow determines how the amount of stored water changes.**",
+  "usage": {
+    "input_tokens": 23982,
+    "cached_input_tokens": 13184,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 941,
+    "reasoning_output_tokens": 740
+  }
+}

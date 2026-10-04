@@ -1,0 +1,19 @@
+{
+  "case": "invalid-strength",
+  "repetition": 1,
+  "guidance": true,
+  "requested_model": "gpt-6.1-sol",
+  "model_identity_source": "Explicit --model argument; response API did not independently return a model identifier",
+  "started_at": "2026-10-04T13:34:20Z",
+  "elapsed_seconds": 15.079,
+  "request": "Use text at 130% ASD-STE100-inspired strength to explain this tank: A tank starts with 20 liters, holds 40 liters, receives 3 liters per minute, and drains 2 liters per minute. Rates are constant and there are no other losses. The model ends when it first becomes full or empty.",
+  "exit_code": 0,
+  "response": "130% is outside the allowed 0\u2013100% range. What ASD-STE100-inspired strength would you like to use?",
+  "usage": {
+    "input_tokens": 23980,
+    "cached_input_tokens": 13184,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 180,
+    "reasoning_output_tokens": 148
+  }
+}

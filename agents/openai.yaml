@@ -1,0 +1,6 @@
+interface:
+  display_name: "LLM Explain"
+  short_description: "Understand complex ideas in your chosen medium"
+  default_prompt: "Use $llm-explain to help me understand a complex idea and choose an explanation format."
+policy:
+  allow_implicit_invocation: true
